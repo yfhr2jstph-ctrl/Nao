@@ -24,10 +24,11 @@ jobs:
           node-version: 20
           cache: npm
       - run: npm ci
-      # プロジェクトサイト（https://<user>.github.io/nao/）用にベースパスを指定
+      # プロジェクトサイト（https://<user>.github.io/Nao/）用にベースパスを指定。
+      # 公開パスはリポジトリ名（大文字小文字そのまま）と一致させる必要がある。
       - run: npm run build
         env:
-          BASE_PATH: /nao/
+          BASE_PATH: /Nao/
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
