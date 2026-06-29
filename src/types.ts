@@ -39,6 +39,8 @@ export interface CollectionItem {
   rarity?: string;
   /** 所持枚数 */
   quantity: number;
+  /** 収納している物理ボックス名（自由入力。未設定は undefined） */
+  box?: string;
   /** 追加日時（ソート用） */
   addedAt: number;
 }

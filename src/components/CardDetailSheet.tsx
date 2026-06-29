@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { buildImageUrl, getCard } from "../api/tcgdex";
-import { db, adjustQuantity, removeItem } from "../db/collection";
+import { db, adjustQuantity, removeItem, setItemBox } from "../db/collection";
 import { adjustDeckCard } from "../db/decks";
 import type { CardFull } from "../types";
 import type { DisplayCard } from "./CardGrid";
@@ -19,6 +19,27 @@ export default function CardDetailSheet({ card, onClose, activeDeck }: Props) {
 
   const owned = useLiveQuery(() => db.items.get(card.id), [card.id]);
   const qty = owned?.quantity ?? 0;
+
+  // 既存のボックス名を候補（datalist）として集める
+  const allItems = useLiveQuery(() => db.items.toArray(), []);
+  const boxOptions = useMemo(() => {
+    const s = new Set<string>();
+    allItems?.forEach((i) => i.box && s.add(i.box));
+    return Array.from(s).sort((a, b) => a.localeCompare(b, "ja"));
+  }, [allItems]);
+
+  // 収納ボックス入力。カードを開いた時／DBの値が読めた時に一度だけ同期する
+  const [boxInput, setBoxInput] = useState("");
+  const syncedFor = useRef<string | null>(null);
+  useEffect(() => {
+    if (owned !== undefined && syncedFor.current !== card.id) {
+      setBoxInput(owned?.box ?? "");
+      syncedFor.current = card.id;
+    }
+  }, [owned, card.id]);
+  const saveBox = () => {
+    if (qty > 0) setItemBox(card.id, boxInput);
+  };
 
   const deck = useLiveQuery(
     () => (activeDeck ? db.decks.get(activeDeck.id) : undefined),
@@ -130,6 +151,32 @@ export default function CardDetailSheet({ card, onClose, activeDeck }: Props) {
             </button>
           </div>
         </div>
+
+        {qty > 0 && (
+          <div className="box-row">
+            <label className="stepper-label" htmlFor="box-input">
+              収納ボックス
+            </label>
+            <input
+              id="box-input"
+              className="box-input"
+              list="box-options"
+              placeholder="未設定（例：ボックスA）"
+              value={boxInput}
+              maxLength={40}
+              onChange={(e) => setBoxInput(e.target.value)}
+              onBlur={saveBox}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") e.currentTarget.blur();
+              }}
+            />
+            <datalist id="box-options">
+              {boxOptions.map((b) => (
+                <option key={b} value={b} />
+              ))}
+            </datalist>
+          </div>
+        )}
 
         {activeDeck && (
           <div className="stepper-block">

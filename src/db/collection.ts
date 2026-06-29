@@ -47,6 +47,16 @@ export async function adjustQuantity(
   });
 }
 
+/** 収納ボックス名を設定する（空文字なら未設定に戻す）。所持カードのみ対象。 */
+export async function setItemBox(
+  id: string,
+  box: string | undefined
+): Promise<void> {
+  const name = box?.trim();
+  // undefined を渡すと Dexie は box プロパティ自体を削除する
+  await db.items.update(id, { box: name || undefined });
+}
+
 /** コレクションから完全に削除する。 */
 export async function removeItem(id: string): Promise<void> {
   await db.items.delete(id);
