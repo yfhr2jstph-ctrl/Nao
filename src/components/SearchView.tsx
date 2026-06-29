@@ -5,9 +5,16 @@ import CardGrid, { type DisplayCard } from "./CardGrid";
 interface Props {
   quantities: Map<string, number>;
   onSelect: (card: DisplayCard) => void;
+  title?: string;
+  onBack?: () => void;
 }
 
-export default function SearchView({ quantities, onSelect }: Props) {
+export default function SearchView({
+  quantities,
+  onSelect,
+  title = "カードを探す",
+  onBack,
+}: Props) {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<DisplayCard[] | null>(null);
   const [loading, setLoading] = useState(false);
@@ -33,7 +40,12 @@ export default function SearchView({ quantities, onSelect }: Props) {
   return (
     <>
       <div className="topbar">
-        <h1>カードを探す</h1>
+        {onBack && (
+          <button className="back-btn" onClick={onBack}>
+            ‹ 戻る
+          </button>
+        )}
+        <h1>{title}</h1>
         <form className="search-row" onSubmit={runSearch}>
           <input
             className="search-input"

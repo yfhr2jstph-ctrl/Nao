@@ -33,13 +33,16 @@ export default defineConfig({
         ],
       },
       workbox: {
-        // カード画像（TCGdex CDN）はオフライン用にキャッシュする
+        // カード「画像」だけをオフライン用にキャッシュする。
+        // API のJSON（api.tcgdex.net）はキャッシュせず常に最新を取りに行く
+        // （CacheFirst にすると検索結果が古いまま固定されてしまうため）。
         runtimeCaching: [
           {
-            urlPattern: ({ url }) => url.hostname.includes("tcgdex"),
+            urlPattern: ({ url, request }) =>
+              url.hostname.includes("tcgdex") && request.destination === "image",
             handler: "CacheFirst",
             options: {
-              cacheName: "tcgdex-assets",
+              cacheName: "tcgdex-images",
               expiration: { maxEntries: 500, maxAgeSeconds: 60 * 60 * 24 * 30 },
               cacheableResponse: { statuses: [0, 200] },
             },

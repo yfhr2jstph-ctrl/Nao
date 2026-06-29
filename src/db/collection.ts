@@ -1,9 +1,10 @@
 import Dexie, { type Table } from "dexie";
-import type { CollectionItem } from "../types";
+import type { CollectionItem, Deck } from "../types";
 
-// 端末内（IndexedDB）にコレクションを保存する。サーバー・ログイン不要。
+// 端末内（IndexedDB）にコレクションとデッキを保存する。サーバー・ログイン不要。
 class CollectionDB extends Dexie {
   items!: Table<CollectionItem, string>;
+  decks!: Table<Deck, string>;
 
   constructor() {
     super("nao-pokecolle");
@@ -14,6 +15,11 @@ class CollectionDB extends Dexie {
     // id を主キー、name と addedAt にインデックス（検索・並び替え用）
     this.version(1).stores({
       items: "id, name, addedAt",
+    });
+    // v2: デッキ用テーブルを追加（cards は配列としてそのまま保持）
+    this.version(2).stores({
+      items: "id, name, addedAt",
+      decks: "id, name, updatedAt",
     });
   }
 }

@@ -13,6 +13,8 @@ export interface CardBrief {
 /** /cards/{id} で返る詳細カード情報 */
 export interface CardFull extends CardBrief {
   category?: string;
+  /** ポケモンの進化段階（Basic / Stage1 ... 言語により表記が異なる場合あり） */
+  stage?: string;
   rarity?: string;
   illustrator?: string;
   hp?: number;
@@ -39,4 +41,29 @@ export interface CollectionItem {
   quantity: number;
   /** 追加日時（ソート用） */
   addedAt: number;
+}
+
+/** デッキに入っているカード1種 */
+export interface DeckCard {
+  id: string;
+  name: string;
+  localId: string;
+  setName: string;
+  image?: string;
+  rarity?: string;
+  /** Pokemon / Trainer / Energy など（ルール検証用） */
+  category?: string;
+  /** 進化段階（たねポケモン判定用） */
+  stage?: string;
+  /** このデッキでの採用枚数 */
+  count: number;
+}
+
+/** 端末内に保存するデッキ */
+export interface Deck {
+  id: string;
+  name: string;
+  cards: DeckCard[];
+  createdAt: number;
+  updatedAt: number;
 }
